@@ -1,0 +1,198 @@
+<div class="container">
+    <app-navbar-registros></app-navbar-registros>
+
+    <h1>Revisión de Registros</h1>
+
+    <!-- Formulario de Filtro -->
+    <form [formGroup]="formFiltro" (ngSubmit)="filtrarRegistros()">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="puntoServicioSelect" class="form-label">Punto de Servicio:</label>
+                <select class="form-select" id="puntoServicioSelect" formControlName="puntoServicio" required>
+                    <option value="">Seleccione un Punto de Servicio</option>
+                    <option *ngFor="let ps of puntosServicio" [value]="ps.id">{{ ps.nombre }}</option>
+                </select>
+                <div *ngIf="formFiltro.get('puntoServicio')?.invalid && formFiltro.get('puntoServicio')?.touched" class="text-danger">
+                    Por favor seleccione un punto de servicio.
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="fechaInicio" class="form-label">Fecha Inicio:</label>
+                <input type="date" class="form-control" id="fechaInicio" formControlName="fechaInicio" required>
+                <div *ngIf="formFiltro.get('fechaInicio')?.invalid && formFiltro.get('fechaInicio')?.touched" class="text-danger">
+                    La fecha de inicio es requerida.
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="fechaFin" class="form-label">Fecha Fin:</label>
+                <input type="date" class="form-control" id="fechaFin" formControlName="fechaFin" required>
+                <div *ngIf="formFiltro.get('fechaFin')?.invalid && formFiltro.get('fechaFin')?.touched" class="text-danger">
+                    La fecha de fin es requerida.
+                </div>
+            </div>
+        </div>
+        <div class="form-buttons">
+            <button type="submit" class="btn btn-primary" [disabled]="!formFiltro.valid">Filtrar</button>
+            <button type="button" class="btn btn-info" (click)="consultarRegistros()">Consultar Todos</button>
+        </div>
+    </form>
+
+    <!-- Tabla de Registros Filtrados -->
+    <div class="mt-4">
+        <h2>Registros Filtrados</h2>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>N° Documento</th>
+                        <th>Primer Apellido</th>
+                        <th>Segundo Apellido</th>
+                        <th>Nombre</th>
+                        <th>Fecha</th>
+                        <th>Tipo Hora Extra</th>
+                        <th>N° Horas</th>
+                        <th>Motivo</th>
+                        <th>Forma Pago</th>
+                        <th>Horario Habitual</th>
+                        <th>Hora Entrada</th>
+                        <th>Hora Salida</th>
+                        <th>Tiempo Alimentación</th>
+                        <th>Centro Costo</th>
+                        <th>Centro Operación</th>
+                        <th>Punto Servicio</th>
+                        <th *ngIf="showActions">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let registro of filteredRegistros">
+                        <td>{{ registro.NumeroDocumento }}</td>
+                        <td>{{ registro.PrimerApellido }}</td>
+                        <td>{{ registro.SegundoApellido }}</td>
+                        <td>{{ registro.Nombre }}</td>
+                        <td>{{ registro.FechaHoExt | date }}</td>
+                        <td>{{ registro.ID_TipoHoraExtra }}</td>
+                        <td>{{ registro.NumeroHoras }}</td>
+                        <td>{{ registro.Motivo }}</td>
+                        <td>{{ registro.FormaPago }}</td>
+                        <td>{{ registro.HorarioHabitual }}</td>
+                        <td>{{ registro.HoraEntrada }}</td>
+                        <td>{{ registro.HoraSalida }}</td>
+                        <td>{{ registro.TiempoAlimentacion }}</td>
+                        <td>{{ registro.CentroCosto }}</td>
+                        <td>{{ registro.CentroOperacion }}</td>
+                        <td>{{ registro.PuntoServicio }}</td>
+
+                        <!-- Botones de acción que solo aparecen si showActions es true -->
+                        <td *ngIf="showActions">
+                            <button class="btn btn-danger" (click)="eliminarRegistro(registro.ID_HoraExtra)">X</button>
+                            <button class="btn btn-warning" (click)="editarRegistro(registro)" data-bs-toggle="modal"
+                                data-bs-target="#editarRegistroModal">Edit</button>
+                        </td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal para editar registro -->
+    <div class="modal fade" id="editarRegistroModal" tabindex="-1" aria-labelledby="editarRegistroModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarRegistroModalLabel">Editar Registro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="formEditarRegistro">
+                        <div class="mb-3">
+                            <label for="numeroDocumento" class="form-label">N° Documento:</label>
+                            <input type="text" class="form-control" id="numeroDocumento"
+                                formControlName="numeroDocumento" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="primerApellido" class="form-label">Primer Apellido:</label>
+                            <input type="text" class="form-control" id="primerApellido" formControlName="primerApellido"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="segundoApellido" class="form-label">Segundo Apellido:</label>
+                            <input type="text" class="form-control" id="segundoApellido"
+                                formControlName="segundoApellido">
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre:</label>
+                            <input type="text" class="form-control" id="nombre" formControlName="nombre">
+                        </div>
+                        <div class="mb-3">
+                            <label for="fechaHoExt" class="form-label">Fecha:</label>
+                            <input type="date" class="form-control" id="fechaHoExt" formControlName="fechaHoExt"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="idTipoHoraExtra" class="form-label">Tipo Hora Extra:</label>
+                            <input type="text" class="form-control" id="idTipoHoraExtra"
+                                formControlName="idTipoHoraExtra" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="numeroHoras" class="form-label">N° Horas:</label>
+                            <input type="number" class="form-control" id="numeroHoras" formControlName="numeroHoras"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="motivo" class="form-label">Motivo:</label>
+                            <input type="text" class="form-control" id="motivo" formControlName="motivo" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="formaPago" class="form-label">Forma Pago:</label>
+                            <input type="text" class="form-control" id="formaPago" formControlName="formaPago" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="horarioHabitual" class="form-label">Horario Habitual:</label>
+                            <input type="text" class="form-control" id="horarioHabitual"
+                                formControlName="horarioHabitual" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="horaEntrada" class="form-label">Hora Entrada:</label>
+                            <input type="time" class="form-control" id="horaEntrada" formControlName="horaEntrada">
+                        </div>
+                        <div class="mb-3">
+                            <label for="horaSalida" class="form-label">Hora Salida:</label>
+                            <input type="time" class="form-control" id="horaSalida" formControlName="horaSalida">
+                        </div>
+                        <div class="mb-3">
+                            <label for="tiempoAlimentacion" class="form-label">Tiempo Alimentación:</label>
+                            <input type="text" class="form-control" id="tiempoAlimentacion"
+                                formControlName="tiempoAlimentacion" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="centroCosto" class="form-label">Centro Costo:</label>
+                            <input type="text" class="form-control" id="centroCosto" formControlName="centroCosto"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="centroOperacion" class="form-label">Centro Operación:</label>
+                            <input type="text" class="form-control" id="centroOperacion"
+                                formControlName="centroOperacion" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="puntoServicio" class="form-label">Punto Servicio:</label>
+                            <input type="text" class="form-control" id="puntoServicio" formControlName="puntoServicio"
+                                required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" (click)="guardarCambios()">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón Final para Guardar Todos los Cambios -->
+    <div class="final-button">
+        <button type="button" class="btn btn-final" (click)="guardarTodosCambios()">Guardar Todos los Cambios</button>
+    </div>
+</div>

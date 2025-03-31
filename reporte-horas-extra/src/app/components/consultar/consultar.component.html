@@ -1,0 +1,61 @@
+<div class="container">
+
+  <!-- Botón de salir -->
+  <div class="d-flex justify-content-end mb-3">
+     <button class="btn btn-danger" type="button" (click)="salir()">
+        Salir
+    </button>
+  </div>
+
+  <h1>Consultar Horas Extras</h1>
+  <form [formGroup]="formConsultar" (ngSubmit)="buscar()">
+      <div class="input-group mb-3">
+          <input type="text" formControlName="documento" class="form-control" placeholder="Ingrese documento del empleado" required>
+          <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i> Buscar</button>
+      </div>
+      <div class="row mb-3">
+          <div class="col">
+              <label>Desde:</label>
+              <input type="date" formControlName="fechaDesde" class="form-control">
+          </div>
+          <div class="col">
+              <label>Hasta:</label>
+              <input type="date" formControlName="fechaHasta" class="form-control">
+          </div>
+      </div>
+  </form>
+
+  <table class="table table-striped mt-4" *ngIf="empleados.length">
+    <thead>
+        <tr>
+            <th>Documento</th>
+            <th>Nombre</th>
+            <th>Primer Apellido</th>
+            <th>Segundo Apellido</th>
+            <th>Fecha Hora Extra</th>
+            <th>Motivo</th>
+            <th>Forma de Pago</th>
+            <th>Número de Horas</th>
+            <th>ID Tipo Hora Extra</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let empleado of empleados">
+            <td>{{ empleado.NumeroDocumento }}</td>
+            <td>{{ empleado.Nombre }}</td>
+            <td>{{ empleado.PrimerApellido }}</td>
+            <td>{{ empleado.SegundoApellido }}</td>
+            <td>{{ empleado.FechaHoExt }}</td>
+            <td>{{ empleado.Motivo }}</td>
+            <td>{{ empleado.FormaPago }}</td>
+            <td>{{ empleado.NumeroHoras }}</td>
+            <td>{{ empleado.ID_TipoHoraExtra }}</td>
+        </tr>
+    </tbody>
+</table>
+
+
+  <div *ngIf="!empleados.length && formConsultar.valid" class="alert alert-info mt-4">
+      No se encontraron registros para el documento ingresado.
+  </div>
+</div>

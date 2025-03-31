@@ -1,0 +1,65 @@
+<div class="container">
+    <!-- Botón de salir -->
+    <div class="d-flex justify-content-end mb-3">
+        <button class="btn btn-danger" type="button" (click)="salir()">
+            Salir
+        </button>
+    </div>
+
+    <h1>Generar Reporte de Horas Extra</h1>
+
+    <!-- Formulario de filtro -->
+    <form [formGroup]="filtroForm">
+        <div class="row align-items-end mb-3">
+            <div class="col">
+                <label for="fechaDesde">Desde:</label>
+                <input id="fechaDesde" type="date" formControlName="fechaDesde" class="form-control">
+            </div>
+            <div class="col">
+                <label for="fechaHasta">Hasta:</label>
+                <input id="fechaHasta" type="date" formControlName="fechaHasta" class="form-control">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="button" (click)="filtrarRegistros()">Filtrar</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Tabla de resultados -->
+    <table class="table table-striped mt-4" *ngIf="registros.length">
+        <thead>
+            <tr>
+                <th>Empleado</th>
+                <th>Cédula</th>
+                <th>CO</th>
+                <th>C. Costo</th>
+                <th>Fecha Hora Extra</th>
+                <th>Horas</th>
+                <th>Concepto</th>
+                <th>ID Tipo Hora Extra</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let registro of registros">
+                <td>{{ registro.empleado }}</td>
+                <td>{{ registro.cedula }}</td>
+                <td>{{ registro.co }}</td>
+                <td>{{ registro.centroCosto }}</td>
+                <td>{{ registro.fechaHoraExtra }}</td>
+                <td>{{ registro.horas }}</td>
+                <td>{{ registro.concepto }}</td>
+                <td>{{ registro.ID_TipoHoraExtra }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Botón de exportar a Excel -->
+    <button class="btn btn-success mt-3" type="button" (click)="exportarExcel()">
+        <i class="fas fa-file-excel"></i> Exportar a Excel
+    </button>
+
+    <!-- Mensaje si no hay registros -->
+    <div *ngIf="!registros.length && filtroForm.valid" class="alert alert-info mt-4">
+        No se encontraron registros para el rango de fechas seleccionado.
+    </div>
+</div>

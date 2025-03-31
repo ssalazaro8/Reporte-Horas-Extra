@@ -1,0 +1,58 @@
+/* Estilo general */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: #f0f8ff; /* Azul clarito */
+  }
+  
+  /* Barra de navegación */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #4a90e2; /* Azul vivo */
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-bottom: 3px solid #357abd;
+  }
+  
+  /* Logo */
+  .logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #fff;
+  }
+  
+  /* Links del menú */
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1.5rem;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-links li {
+    display: inline;
+  }
+  
+  .nav-links a {
+    text-decoration: none;
+    font-size: 1.2rem;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  /* Efecto hover */
+  .nav-links a:hover {
+    background: #357abd; /* Azul más oscuro */
+  }
+  
+  /* Link activo */
+  .nav-links a.active {
+    background: #2c6eb6;
+    font-weight: bold;
+  }
+  

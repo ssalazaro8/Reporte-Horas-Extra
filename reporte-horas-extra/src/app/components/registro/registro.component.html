@@ -1,0 +1,254 @@
+<div class="container">
+    <app-navbar-registros></app-navbar-registros> 
+    
+    <h1>Gestión de Horas Extra</h1>
+
+    <div class="top-fields mb-3">
+        <form [formGroup]="formFijo">
+            <div class="row">
+                <div class="col-md-4">
+                    <label for="centroCostoSelect" class="form-label">Centro de Costo:</label>
+                    <input type="text" class="form-control" id="centroCostoSelect" formControlName="centroCosto" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label for="centroOperacionSelect" class="form-label">Centro de Operación:</label>
+                    <input type="text" class="form-control" id="centroOperacionSelect" formControlName="centroOperacion" readonly>
+                </div>
+                <div class="col-md-4">
+                    <label for="puntoServicioSelect" class="form-label">Punto de Servicio:</label>
+                    <select class="form-select" id="puntoServicioSelect" formControlName="puntoServicio" (change)="onPuntoServicioChange()">
+                        <option value="">Seleccione un Punto de Servicio</option>
+                        <option *ngFor="let ps of puntoServicios" [value]="ps.id">{{ ps.nombre }}</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Dynamic Forms Container -->
+    <div id="registrosContainer">
+        <div *ngFor="let registro of registros; let i = index" [formGroup]="registro"
+            class="horasExtraForm mb-3 border p-3 rounded">
+            <div class="form-header">
+                <button type="button" class="btn btn-danger btn-sm eliminarRegistroBtn" (click)="removeRegistro(i)">
+                    <i class="fas fa-times"></i> X
+                </button>
+            </div>
+
+            <div class="row g-3">
+                <!-- Document Number with Search -->
+    <!-- Ejemplo para un campo requerido -->
+            <div class="col-md-3">
+                <label class="form-label">N° Documento:</label>
+                <div class="input-group">
+                    <input type="text" class="form-control NumeroDocumento" formControlName="NumeroDocumento" required>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary buscarEmpleadoBtn" type="button" (click)="buscarEmpleado(registro)">Buscar</button>
+                    </div>
+                </div>
+                <div *ngIf="registro.get('NumeroDocumento')?.invalid && registro.get('NumeroDocumento')?.touched" class="text-danger">
+                    El número de documento es requerido.
+                </div>
+            </div>
+
+<!-- Repite este patrón para cada campo requerido -->
+
+
+                <!-- Primer Apellido -->
+                <div class="col-md-3">
+                    <label class="form-label">Primer Apellido:</label>
+                    <input type="text" class="form-control PrimerApellido" formControlName="PrimerApellido" readonly>
+                </div>
+
+                <!-- Segundo Apellido -->
+                <div class="col-md-3">
+                    <label class="form-label">Segundo Apellido:</label>
+                    <input type="text" class="form-control SegundoApellido" formControlName="SegundoApellido" readonly>
+                </div>
+
+                <!-- Nombre -->
+                <div class="col-md-3">
+                    <label class="form-label">Nombre:</label>
+                    <input type="text" class="form-control Nombre" formControlName="Nombre" readonly>
+                </div>
+
+                <!-- Fecha -->
+                <div class="col-md-3">
+                    <label class="form-label">Fecha novedad:</label>
+                    <input type="date" class="form-control FechaHoExt" formControlName="FechaHoExt" required
+                        [min]="fechaMinima" [max]="fechaMaxima">
+                    <div *ngIf="registro.get('FechaHoExt')?.invalid && registro.get('FechaHoExt')?.touched" class="text-danger">
+                        La fecha de novedad es requerida.
+                    </div>
+                </div>
+
+                <!-- Tipo Hora Extra -->
+                <div class="col-md-3">
+                    <label class="form-label">Tipo Hora Extra:</label>
+                    <select class="form-select" formControlName="ID_TipoHoraExtra" required>
+                        <option value="">Seleccione un tipo de hora extra</option>
+                        <option *ngFor="let tipo of tiposHoraExtra" [value]="tipo.CodigoCC">{{ tipo.Nombre }}</option>
+                    </select>
+                    
+                    <div *ngIf="registro.get('ID_TipoHoraExtra')?.invalid && registro.get('ID_TipoHoraExtra')?.touched" class="text-danger">
+                        Por favor seleccione un tipo de hora extra.
+                    </div>
+                </div>
+
+
+                <!-- N° Horas -->
+                <div class="col-md-3">
+                    <label class="form-label">N° Horas:</label>
+                    <input type='text' class='form-control NumeroHoras' formControlName="NumeroHoras" required
+                        (keydown)="soloNumerosYPuntos($event)">
+                    <div *ngIf="registro.get('NumeroHoras')?.invalid && registro.get('NumeroHoras')?.touched">
+                        <div *ngIf="registro.get('NumeroHoras')?.errors?.['required']" class="text-danger">
+                            El número de horas es requerido.
+                        </div>
+                        <div *ngIf="registro.get('NumeroHoras')?.errors?.['invalidHorasExtra']" class="text-danger">
+                            Solo se permiten números y puntos (Ej: 1.5).
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- forma de pago-->
+
+                <div class="col-md-3">
+                    <label class="form-label">Forma de Pago:</label>
+                    <select class='form-select FormaPago' formControlName="FormaPago" required>
+                        <option value='Nómina'>Nómina</option>
+                        <option value='Tiempo'>Tiempo</option>
+                    </select>
+                </div>
+                
+
+                <!-- Horario Habitual -->
+                <div class="col-md-6">
+                    <label class="form-label">Horario Habitual:</label>
+                    <div class="d-flex align-items-center">
+                        <input type="number" class="form-control mx-1 hora-input" formControlName="HorarioHabitualDesdeHora"
+                            placeholder="Hora" min="0" max="12" required>
+                        <span class="mx-1">:</span>
+                        <input type="number" class="form-control mx-1 min-input" formControlName="HorarioHabitualDesdeMinuto"
+                            placeholder="Min" min="0" max="59" required>
+                        <select class="form-select mx-1 ampm-select" formControlName="HorarioHabitualDesdeAMPM" required>
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                        <span class="mx-1">a</span>
+                        <input type="number" class="form-control mx-1 hora-input" formControlName="HorarioHabitualHastaHora"
+                            placeholder="Hora" min="0" max="12" required>
+                        <span class="mx-1">:</span>
+                        <input type="number" class="form-control mx-1 min-input" formControlName="HorarioHabitualHastaMinuto"
+                            placeholder="Min" min="0" max="59" required>
+                        <select class="form-select mx-1 ampm-select" formControlName="HorarioHabitualHastaAMPM" required>
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
+                    <div class="text-danger">
+                        <div *ngIf="registro.get('HorarioHabitualDesdeHora')?.invalid && registro.get('HorarioHabitualDesdeHora')?.touched">
+                            La hora de inicio es requerida.
+                        </div>
+                        <div *ngIf="registro.get('HorarioHabitualDesdeMinuto')?.invalid && registro.get('HorarioHabitualDesdeMinuto')?.touched">
+                            El minuto de inicio es requerido.
+                        </div>
+                        <div *ngIf="registro.get('HorarioHabitualDesdeAMPM')?.invalid && registro.get('HorarioHabitualDesdeAMPM')?.touched">
+                            El AM/PM de inicio es requerido.
+                        </div>
+                        <div *ngIf="registro.get('HorarioHabitualHastaHora')?.invalid && registro.get('HorarioHabitualHastaHora')?.touched">
+                            La hora de fin es requerida.
+                        </div>
+                        <div *ngIf="registro.get('HorarioHabitualHastaMinuto')?.invalid && registro.get('HorarioHabitualHastaMinuto')?.touched">
+                            El minuto de fin es requerido.
+                        </div>
+                        <div *ngIf="registro.get('HorarioHabitualHastaAMPM')?.invalid && registro.get('HorarioHabitualHastaAMPM')?.touched">
+                            El AM/PM de fin es requerido.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tiempo Alimentación -->
+                <div class="col-md-6">
+                    <label class="form-label">Tiempo Alimentación:</label>
+                    <div class="d-flex align-items-center">
+                        <input type="number" class="form-control mx-1 hora-input" formControlName="TiempoAlimentacionDesdeHora"
+                            placeholder="Hora" min="0" max="12" required>
+                        <span class="mx-1">:</span>
+                        <input type="number" class="form-control mx-1 min-input" formControlName="TiempoAlimentacionDesdeMinuto"
+                            placeholder="Min" min="0" max="59" required>
+                        <select class="form-select mx-1 ampm-select" formControlName="TiempoAlimentacionDesdeAMPM" required>
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                        <span class="mx-1">a</span>
+                        <input type="number" class="form-control mx-1 hora-input" formControlName="TiempoAlimentacionHastaHora"
+                            placeholder="Hora" min="0" max="12" required>
+                        <span class="mx-1">:</span>
+                        <input type="number" class="form-control mx-1 min-input" formControlName="TiempoAlimentacionHastaMinuto"
+                            placeholder="Min" min="0" max="59" required>
+                        <select class="form-select mx-1 ampm-select" formControlName="TiempoAlimentacionHastaAMPM" required>
+                            <option value="AM">AM</option>
+                            <option value="PM">PM</option>
+                        </select>
+                    </div>
+                    <div class="text-danger">
+                        <div *ngIf="registro.get('TiempoAlimentacionDesdeHora')?.invalid && registro.get('TiempoAlimentacionDesdeHora')?.touched">
+                            La hora de inicio es requerida.
+                        </div>
+                        <div *ngIf="registro.get('TiempoAlimentacionDesdeMinuto')?.invalid && registro.get('TiempoAlimentacionDesdeMinuto')?.touched">
+                            El minuto de inicio es requerido.
+                        </div>
+                        <div *ngIf="registro.get('TiempoAlimentacionDesdeAMPM')?.invalid && registro.get('TiempoAlimentacionDesdeAMPM')?.touched">
+                            El AM/PM de inicio es requerido.
+                        </div>
+                        <div *ngIf="registro.get('TiempoAlimentacionHastaHora')?.invalid && registro.get('TiempoAlimentacionHastaHora')?.touched">
+                            La hora de fin es requerida.
+                        </div>
+                        <div *ngIf="registro.get('TiempoAlimentacionHastaMinuto')?.invalid && registro.get('TiempoAlimentacionHastaMinuto')?.touched">
+                            El minuto de fin es requerido.
+                        </div>
+                        <div *ngIf="registro.get('TiempoAlimentacionHastaAMPM')?.invalid && registro.get('TiempoAlimentacionHastaAMPM')?.touched">
+                            El AM/PM de fin es requerido.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hora Entrada, Hora Salida y Motivo en la misma fila -->
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label class="form-label">Hora Entrada:</label>
+                            <input type='time' class='form-control HoraEntrada' formControlName="HoraEntrada" required>
+                            <div *ngIf="registro.get('HoraEntrada')?.invalid && registro.get('HoraEntrada')?.touched" class="text-danger">
+                                La hora de entrada es requerida.
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Hora Salida:</label>
+                            <input type='time' class='form-control HoraSalida' formControlName="HoraSalida" required>
+                            <div *ngIf="registro.get('HoraSalida')?.invalid && registro.get('HoraSalida')?.touched" class="text-danger">
+                                La hora de salida es requerida.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Motivo:</label>
+                            <input type='text' class='form-control Motivo' formControlName="Motivo" required>
+                            <div *ngIf="registro.get('Motivo')?.invalid && registro.get('Motivo')?.touched" class="text-danger">
+                                El motivo es requerido.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div> <!-- Fin del row g-3 -->
+        </div> <!-- Fin del formulario dinámico -->
+    </div> <!-- Fin del contenedor de registros -->
+
+    <!-- Botones principales -->
+    <div class="button-container">
+        <button type="button" class="btn btn-primary" (click)="addRegistro()">+ Añadir Registro</button>
+        <button type="button" class="btn btn-success" (click)="finalizarRegistros()">Finalizar</button>
+    </div> <!-- Fin del contenedor de botones -->
+</div> <!-- Fin del contenedor principal -->

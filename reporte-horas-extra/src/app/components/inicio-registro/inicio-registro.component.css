@@ -1,0 +1,55 @@
+/* Estilo general */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f8ff; /* Azul clarito */
+  margin: 0;
+  padding: 0;
+}
+
+/* Contenedor centrado */
+.container {
+  text-align: center;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  margin: 10% auto;
+}
+
+/* Título */
+h1 {
+  color: #4a90e2;
+  font-size: 2.5rem;
+}
+
+/* Texto */
+p {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+/* Imagen */
+.imagen {
+  display: block;
+  max-width: 100%; /* La imagen nunca será más ancha que su contenedor */
+  height: auto; /* Mantiene la proporción original */
+  border-radius: 8px;
+  margin: 1.5rem auto; /* Centrado */
+  object-fit: contain; /* Asegura que la imagen se ajuste bien */
+}
+
+/* Imagen de fondo */
+.imagen::before {
+  content: "";
+  display: block;
+  width: 200px;
+  height: 200px;
+  background-image: url("../../../assets/Logo4.png");
+  background-size: contain; /* Ajusta sin cortar la imagen */
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 8px;
+  margin: 0 auto;
+}

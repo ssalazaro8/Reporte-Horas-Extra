@@ -1,0 +1,65 @@
+<div class="container">
+    <app-navbar-registros></app-navbar-registros>
+  
+    <h1>Gestión de Empleados</h1>
+  
+    <!-- Botones iniciales -->
+    <button class="consultar-button" (click)="toggleSearch()">Consultar</button>
+    <button class="crear-button" (click)="toggleCreateForm()">Crear</button>
+  
+    <!-- Formulario de búsqueda -->
+    <form [formGroup]="searchForm" (ngSubmit)="searchEmpleado()" *ngIf="showSearch">
+      <div>
+        <label for="searchNumeroDocumento">Número de Documento:</label>
+        <input id="searchNumeroDocumento" formControlName="NumeroDocumento" type="text" />
+      </div>
+      <button type="submit">Buscar Empleado</button>
+    </form>
+  
+    <!-- Información del empleado -->
+    <table *ngIf="empleado">
+      <thead>
+        <tr>
+          <th>Número de Documento</th>
+          <th>Nombres</th>
+          <th>Primer Apellido</th>
+          <th>Segundo Apellido</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ empleado.NumeroDocumento }}</td>
+          <td>{{ empleado.Nombres }}</td>
+          <td>{{ empleado.PrimerApellido }}</td>
+          <td>{{ empleado.SegundoApellido }}</td>
+          <td>
+            <button class="edit-button" (click)="editEmpleado(empleado)">Editar</button>
+            <button class="delete-button" (click)="deleteEmpleado(empleado.NumeroDocumento)">Eliminar</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  
+    <!-- Formulario para crear o actualizar empleados -->
+    <form [formGroup]="empleadoForm" (ngSubmit)="onSubmit()" *ngIf="showCreateForm">
+      <div>
+        <label for="NumeroDocumento">Número de Documento:</label>
+        <input id="NumeroDocumento" formControlName="NumeroDocumento" type="text" />
+      </div>
+      <div>
+        <label for="Nombres">Nombres:</label>
+        <input id="Nombres" formControlName="Nombres" type="text" />
+      </div>
+      <div>
+        <label for="PrimerApellido">Primer Apellido:</label>
+        <input id="PrimerApellido" formControlName="PrimerApellido" type="text" />
+      </div>
+      <div>
+        <label for="SegundoApellido">Segundo Apellido:</label>
+        <input id="SegundoApellido" formControlName="SegundoApellido" type="text" />
+      </div>
+      <button type="submit">{{ isEditing ? 'Actualizar' : 'Crear' }}</button>
+    </form>
+  </div>
+  
