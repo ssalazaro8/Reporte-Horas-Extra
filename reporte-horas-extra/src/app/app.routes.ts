@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { RegistroComponent } from './components/registro/registro.component';
 import { GenerarComponent } from './components/generar/generar.component';
-import { HomeComponent } from './components/home/home.component';
 import { ConsultarComponent } from './components/consultar/consultar.component';
 import { SignInComponent } from './components/sign-in/sign-in.component';
 import { RevisionComponent } from './components/revision/revision.component';
