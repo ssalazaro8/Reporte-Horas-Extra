@@ -19,12 +19,13 @@ export class HorasExtraController {
 
 @Get()
 async findFiltered(
+    @Query('documento') documento?: string, 
     @Query('puntoServicio') puntoServicio?: string,
     @Query('fechaDesde') fechaDesde?: string,
     @Query('fechaHasta') fechaHasta?: string
 ): Promise<HorasExtra[]> {
     try {
-        return await this.horasExtraService.findFiltered(puntoServicio, fechaDesde, fechaHasta);
+        return await this.horasExtraService.findFiltered(documento, puntoServicio, fechaDesde, fechaHasta);
     } catch (error) {
         console.error('Error en el controlador:', error);
         throw new HttpException({

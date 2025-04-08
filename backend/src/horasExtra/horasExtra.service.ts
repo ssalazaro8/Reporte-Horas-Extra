@@ -21,9 +21,15 @@ export class HorasExtraService {
       return await this.horasExtraRepository.save(entities);
   }
 
-  async findFiltered(puntoServicio?: string, fechaDesde?: string, fechaHasta?: string): Promise<HorasExtra[]> {
+  async findFiltered( documento?: string,
+    puntoServicio?: string, fechaDesde?: string, fechaHasta?: string): Promise<HorasExtra[]> {
     const query = this.horasExtraRepository.createQueryBuilder('h');
     
+    // Filtro por documento
+  if (documento) {
+    query.andWhere('h.NumeroDocumento = :documento', { documento });
+  }
+  
     // Filtro por punto de servicio
     if (puntoServicio) {
         query.andWhere('h.PuntoServicio = :puntoServicio', { puntoServicio });
