@@ -17,19 +17,24 @@ export class HorasExtraController {
       return await this.horasExtraService.createBulk(horasExtras);
   }
 
-  @Get()
-  async findFiltered(
-      @Query('puntoServicio') puntoServicio: string,
-      @Query('fechaDesde') fechaDesde?: string,
-      @Query('fechaHasta') fechaHasta?: string
-  ): Promise<HorasExtra[]> {
-      if (puntoServicio === '') {
-          return await this.horasExtraService.findAll();
-      } else {
-          return await this.horasExtraService.findFiltered(puntoServicio, fechaDesde, fechaHasta);
-      }
-  }
-
+@Get()
+async findFiltered(
+    @Query('puntoServicio') puntoServicio?: string,
+    @Query('fechaDesde') fechaDesde?: string,
+    @Query('fechaHasta') fechaHasta?: string
+): Promise<HorasExtra[]> {
+    try {
+        return await this.horasExtraService.findFiltered(puntoServicio, fechaDesde, fechaHasta);
+    } catch (error) {
+        console.error('Error en el controlador:', error);
+        throw new HttpException({
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+            error: 'Error al obtener registros filtrados',
+            message: error.message
+        }, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}
+  
   @Get(':id')
   async findOne(@Param('id') id: number): Promise<HorasExtra> {
       return await this.horasExtraService.findOne(id);
@@ -41,7 +46,11 @@ export class HorasExtraController {
           const result = await this.horasExtraService.update(id, data);
           return result;
       } catch (error) {
-          throw new HttpException('Error al actualizar el registro', HttpStatus.INTERNAL_SERVER_ERROR);
+          throw new HttpException({
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: 'Error al actualizar el registro',
+            error: error.message
+          }, HttpStatus.INTERNAL_SERVER_ERROR);
       }
   }
   

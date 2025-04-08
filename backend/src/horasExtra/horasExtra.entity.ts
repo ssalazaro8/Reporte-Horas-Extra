@@ -44,7 +44,6 @@ export class HorasExtra {
     @Column({ type: 'varchar', length: 20 })
     TiempoAlimentacion!: string;
 
-   // Se mantienen los campos para almacenar información de la tabla Centros
    @Column()
    CentroCosto!: string; // Almacena el centro de costo
 

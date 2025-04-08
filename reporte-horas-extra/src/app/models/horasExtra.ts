@@ -4,7 +4,7 @@ export interface HorasExtra {
     PrimerApellido?: string | null;
     SegundoApellido?: string | null;
     Nombre?: string | null;
-    FechaHoExt?: string | null;
+    FechaHoExt?: Date | null;
     ID_TipoHoraExtra: string;
     NumeroHoras: number;
     Motivo: string;

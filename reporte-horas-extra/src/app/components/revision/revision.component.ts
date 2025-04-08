@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HorasExtraService } from '../../services/horas-extra.service';
 import { CentrosService } from '../../services/centros.service';
 import { CommonModule } from '@angular/common';
 import { NavbarRegistrosComponent } from "../navbar-registros/navbar-registros.component";
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HorasExtra } from '../../models/horasExtra';
 
 declare var $: any; // Declaración para usar jQuery
 
@@ -92,91 +94,147 @@ export class RevisionComponent implements OnInit {
     }
 
     // Filtra los registros según los criterios del formulario de filtro
-    filtrarRegistros(): void {
-        // Valida si el formulario de filtro es válido
-        if (!this.formFiltro.valid) {
-            alert('Por favor complete todos los campos del filtro.');
-            return;
-        }
-
-        // Obtiene los valores del formulario de filtro
-        const { puntoServicio, fechaInicio, fechaFin } = this.formFiltro.value;
-
-        console.log('Filtrando con punto de servicio:', puntoServicio);
-        console.log('Filtrando con fecha inicio:', fechaInicio);
-        console.log('Filtrando con fecha fin:', fechaFin);
-
-        // Llama al servicio para obtener los registros filtrados
-        this.horasExtraService.getFilteredRegistros(puntoServicio, fechaInicio, fechaFin).subscribe((data: any[]) => {
-            this.filteredRegistros = data;
-            this.showActions = true; // Muestra los botones de acción después de filtrar
-        });
+// En revision.component.ts
+filtrarRegistros(): void {
+    if (this.formFiltro.invalid) {
+      Object.keys(this.formFiltro.controls).forEach(key => {
+        this.formFiltro.get(key)?.markAsTouched();
+      });
+      return;
     }
-
-    // Consulta todos los registros (sin filtrar)
-    consultarRegistros(): void {
-        if (!this.formFiltro.valid) {
-            alert('Por favor complete todos los campos del filtro.');
-            return;
-        }
-
-        this.getRegistros();
-        this.showActions = false;
-    }
-
-    // Edita un registro seleccionado
-    editarRegistro(registro: any): void {
-        this.registroSeleccionado = registro;
-        // Parchea los valores del formulario de edición con los datos del registro seleccionado
-        this.formEditarRegistro.patchValue({
-            numeroDocumento: registro.NumeroDocumento,
-            primerApellido: registro.PrimerApellido,
-            segundoApellido: registro.SegundoApellido,
-            nombre: registro.Nombre,
-            fechaHoExt: new Date(registro.FechaHoExt).toISOString().split('T')[0], // Formatea la fecha
-            idTipoHoraExtra: registro.ID_TipoHoraExtra,
-            numeroHoras: registro.NumeroHoras,
-            motivo: registro.Motivo,
-            formaPago: registro.FormaPago,
-            horarioHabitual: registro.HorarioHabitual,
-            horaEntrada: registro.HoraEntrada,
-            horaSalida: registro.HoraSalida,
-            tiempoAlimentacion: registro.TiempoAlimentacion,
-            centroCosto: registro.CentroCosto,
-            centroOperacion: registro.CentroOperacion,
-            puntoServicio: registro.PuntoServicio
-        });
-        $('#editarRegistroModal').modal('show'); // Abre el modal
-    }
-
-    // Guarda los cambios realizados en el formulario de edición
-    guardarCambios(): void {
-        if (this.formEditarRegistro.valid) {
-            // Crea un objeto con los datos actualizados del registro
-            const updatedRegistro = {
-                ID_HoraExtra: this.registroSeleccionado.ID_HoraExtra,
-                ...this.formEditarRegistro.value
-            };
+  
+    const { puntoServicio, fechaInicio, fechaFin } = this.formFiltro.value;
     
-            console.log('Registro a actualizar:', updatedRegistro);
-    
-            // Llama al servicio para actualizar el registro
-            this.horasExtraService.updateRegistro(updatedRegistro).subscribe({
-                next: (response) => {
-                    console.log('Registro actualizado:', response);
-                    this.getRegistros();
-                    alert('Registro actualizado con éxito');
-                },
-                error: (error) => {
-                    console.error('Error al actualizar el registro:', error);
-                    alert('Error al actualizar el registro. Por favor, intente de nuevo.');
-                }
-            });
+    // Validación adicional de fechas
+    if (new Date(fechaInicio) > new Date(fechaFin)) {
+      alert('La fecha de inicio no puede ser mayor a la fecha final');
+      return;
+    }
+  
+    // Formatear fechas correctamente
+    const fechaDesde = new Date(fechaInicio).toISOString().split('T')[0];
+    const fechaHasta = new Date(fechaFin).toISOString().split('T')[0];
+  
+    console.log('Enviando solicitud con:', { puntoServicio, fechaDesde, fechaHasta });
+  
+    this.horasExtraService.getFilteredRegistros(puntoServicio, fechaDesde, fechaHasta).subscribe({
+      next: (data: any[]) => {
+        console.log('Datos recibidos del servidor:', data);
+        if (data && data.length > 0) {
+          this.filteredRegistros = data;
+          this.showActions = true;
         } else {
-            alert('Por favor, complete todos los campos requeridos.');
+          this.filteredRegistros = [];
+          alert('No se encontraron registros con los criterios especificados');
         }
-    }
+      },
+      error: (error) => {
+        console.error('Error completo:', error);
+        this.filteredRegistros = [];
+        alert(`Error al filtrar registros: ${error.message}`);
+      }
+    });
+  }
+  
+  // Método para consultar todos los registros
+  consultarRegistros(): void {
+    this.horasExtraService.getAllRegistros().subscribe({
+      next: (data: any[]) => {
+        console.log('Todos los registros:', data);
+        this.filteredRegistros = Array.isArray(data) ? data : [];
+        this.showActions = false;
+      },
+      error: (error) => {
+        console.error('Error al consultar:', error);
+        this.filteredRegistros = [];
+      }
+    });
+  }
+
+// Método para abrir el modal con datos
+editarRegistro(registro: HorasExtra): void {
+    this.registroSeleccionado = { ...registro };
     
+    const formData = {
+      numeroDocumento: registro.NumeroDocumento,
+      primerApellido: registro.PrimerApellido,
+      segundoApellido: registro.SegundoApellido,
+      nombre: registro.Nombre,
+      fechaHoExt: this.formatDate(registro.FechaHoExt || ''),
+      idTipoHoraExtra: registro.ID_TipoHoraExtra,
+      numeroHoras: registro.NumeroHoras,
+      motivo: registro.Motivo,
+      formaPago: registro.FormaPago,
+      horarioHabitual: registro.HorarioHabitual,
+      horaEntrada: registro.HoraEntrada,
+      horaSalida: registro.HoraSalida,
+      tiempoAlimentacion: registro.TiempoAlimentacion,
+      centroCosto: registro.CentroCosto,
+      centroOperacion: registro.CentroOperacion,
+      puntoServicio: registro.PuntoServicio
+    };
+  
+    this.formEditarRegistro.patchValue(formData);
+    $('#editarRegistroModal').modal('show');
+  }
+  
+// Método para mostrar mensaje de éxito
+mostrarMensajeExito(mensaje: string): void {
+    // Implementación para mostrar un mensaje de éxito
+    // Puedes usar un servicio de notificaciones o simplemente un alert
+    alert(mensaje);
+  }
+  
+  // Método para mostrar mensaje de error
+  mostrarError(mensaje: string): void {
+    // Implementación para mostrar un mensaje de error
+    // Puedes usar un servicio de notificaciones o simplemente un alert
+    alert(mensaje);
+  }
+  
+  // Método para marcar controles inválidos
+  marcarControlesInvalidos(): void {
+    Object.values(this.formEditarRegistro.controls).forEach(control => {
+      control.markAsTouched();
+    });
+  }
+  
+  guardarCambios(): void {
+    if (this.formEditarRegistro.valid) {
+        const formValue = this.formEditarRegistro.value;
+        
+        const payload: HorasExtra = {
+            ...this.registroSeleccionado, // Mantener el ID original
+            NumeroDocumento: formValue.numeroDocumento,
+            PrimerApellido: formValue.primerApellido,
+            // ... otros campos ...
+            FechaHoExt: formValue.fechaHoExt, // Ya viene formateado del input date
+            // ... resto de campos ...
+        };
+
+        this.horasExtraService.updateRegistro(payload).subscribe({
+            next: () => {
+                alert('Actualizado correctamente');
+                $('#editarRegistroModal').modal('hide');
+                this.filtrarRegistros(); // Refrescar datos
+            },
+            error: (err) => {
+                console.error('Error detallado:', err);
+                alert('Error al actualizar: ' + err.message);
+            }
+        });
+    } else {
+        this.marcarControlesInvalidos();
+    }
+}
+  
+  // Método auxiliar para formato de fecha
+  private formatDate(fecha: string | Date): string {
+      if (!fecha) return '';
+      const date = typeof fecha === 'string' ? new Date(fecha) : fecha;
+      return date.toISOString().split('T')[0];
+    }
+  
     // Elimina un registro
     eliminarRegistro(id: number): void {
         this.horasExtraService.deleteRegistro(id).subscribe(() => {
