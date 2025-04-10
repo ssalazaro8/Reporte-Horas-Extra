@@ -1,9 +1,7 @@
 <div class="container">
     <!-- Botón de salir -->
     <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-danger" type="button" (click)="salir()">
-            Salir
-        </button>
+        <button class="btn btn-danger" type="button" (click)="salir()">Salir</button>
     </div>
 
     <h1>Generar Reporte de Horas Extra</h1>
@@ -13,11 +11,11 @@
         <div class="row align-items-end mb-3">
             <div class="col">
                 <label for="fechaDesde">Desde:</label>
-                <input id="fechaDesde" type="date" formControlName="fechaDesde" class="form-control">
+                <input id="fechaDesde" type="date" formControlName="fechaDesde" class="form-control" />
             </div>
             <div class="col">
                 <label for="fechaHasta">Hasta:</label>
-                <input id="fechaHasta" type="date" formControlName="fechaHasta" class="form-control">
+                <input id="fechaHasta" type="date" formControlName="fechaHasta" class="form-control" />
             </div>
             <div class="col-auto">
                 <button class="btn btn-primary" type="button" (click)="filtrarRegistros()">Filtrar</button>
@@ -25,33 +23,69 @@
         </div>
     </form>
 
-    <!-- Tabla de resultados -->
-    <table class="table table-striped mt-4" *ngIf="registros.length">
-        <thead>
-            <tr>
-                <th>Empleado</th>
-                <th>Cédula</th>
-                <th>CO</th>
-                <th>C. Costo</th>
-                <th>Fecha Hora Extra</th>
-                <th>Horas</th>
-                <th>Concepto</th>
-                <th>ID Tipo Hora Extra</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let registro of registros">
-                <td>{{ registro.empleado }}</td>
-                <td>{{ registro.cedula }}</td>
-                <td>{{ registro.co }}</td>
-                <td>{{ registro.centroCosto }}</td>
-                <td>{{ registro.fechaHoraExtra }}</td>
-                <td>{{ registro.horas }}</td>
-                <td>{{ registro.concepto }}</td>
-                <td>{{ registro.ID_TipoHoraExtra }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <!-- Carrusel con flechas -->
+    <div class="scroll-wrapper" *ngIf="registros.length">
+        <button class="scroll-btn left" (click)="scrollTabla('left')">&#8592;</button>
+
+        <div class="scroll-container" #tablaContainer>
+            <table class="table table-striped mt-4">
+                <thead>
+                    <tr>
+                        <th>EMPLEADO</th>
+                        <th>SUC.</th>
+                        <th>CONCEPTO</th>
+                        <th>CO MOV.</th>
+                        <th>C. COSTO</th>
+                        <th>FECHA MOV.</th>
+                        <th>FECHA INI. TNL</th>
+                        <th>FECHA FIN TNL</th>
+                        <th>DIAS TNL</th>
+                        <th>ACTIVIDAD</th>
+                        <th>UBICACIÓN</th>
+                        <th>HORAS</th>
+                        <th>VALOR</th>
+                        <th>CANTIDAD</th>
+                        <th>CUOTA NRO</th>
+                        <th>FEC. PAG HAST. INT. CESAN.</th>
+                        <th>CEDULA</th>
+                        <th>PROYECTO</th>
+                        <th>CANT. (ACTIVIDAD-DESTAJO)</th>
+                        <th>UBICA. LABO.</th>
+                        <th>DIAS LAB. TIP. COT. 51</th>
+                        <th>HORAS NVO</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let registro of registros">
+                        <td>{{ registro.empleado }}</td>
+                        <td>{{ registro.sucursal }}</td>
+                        <td>{{ registro.concepto }}</td>
+                        <td>{{ registro.co }}</td>
+                        <td>{{ registro.centroCosto }}</td>
+                        <td>{{ registro.fechaHoraExtra }}</td>
+                        <td>{{ registro.fechaIniTNL }}</td>
+                        <td>{{ registro.fechaFinTNL }}</td>
+                        <td>{{ registro.diasTNL }}</td>
+                        <td>{{ registro.actividad }}</td>
+                        <td>{{ registro.ubicacion }}</td>
+                        <td>{{ registro.horas }}</td>
+                        <td>{{ registro.valor }}</td>
+                        <td>{{ registro.cantidad }}</td>
+                        <td>{{ registro.cuotaNro }}</td>
+                        <td>{{ registro.fechaPagoCesan }}</td>
+                        <td>{{ registro.cedula }}</td>
+                        <td>{{ registro.proyecto }}</td>
+                        <td>{{ registro.cantidadDestajo }}</td>
+                        <td>{{ registro.puntoServicio }}</td>
+                        <td>{{ registro.diasCot51 }}</td>
+                        <td>{{ registro.horasNvo }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <button class="scroll-btn right" (click)="scrollTabla('right')">&#8594;</button>
+    </div>
 
     <!-- Botón de exportar a Excel -->
     <button class="btn btn-success mt-3" type="button" (click)="exportarExcel()">
